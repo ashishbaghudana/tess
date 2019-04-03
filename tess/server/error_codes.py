@@ -1,0 +1,4 @@
+# Error codes due to an invalid request
+INVALID_REQUEST = 400
+INVALID_ALGORITHM = 401
+DOCUMENT_NOT_FOUND = 404

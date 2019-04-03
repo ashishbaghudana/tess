@@ -1,0 +1,6 @@
+{
+    "host": "0.0.0.0",
+    "port": 8000,
+    "task_queue": "/tmp/tess.taskqueue.sqlite",
+    "table_name": "task_queue"
+}
