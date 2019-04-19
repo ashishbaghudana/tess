@@ -11,6 +11,10 @@ class SummarizationModel(ABC):
     def predict_batch(self, texts: List[str], **kwargs) -> List[str]:
         pass
 
+    @abstractmethod
+    def text_preprocess(self, text):
+        pass
+
 
 class SummarizationModelError(Exception):
     def __init__(self, msg):

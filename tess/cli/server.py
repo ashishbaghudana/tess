@@ -1,29 +1,49 @@
+import atexit
 import json
 import os
 
-from vibora import Vibora
+from apscheduler.schedulers.background import BackgroundScheduler
 
 from tess.config import TESS_ROOT_DIRECTORY
-from tess.server.apis import summarization_api
+from tess.segmentation.models import segmentation_dispatch
+from tess.summarization.models import summarization_dispatch
+from tess.pipeline.models import pipeline_dispatch
+from tess.server.app import app
 from tess.server.config import Config
-from tess.server.jobqueue import TinyDBQueue
-from tess.utils import BackgroundFunction
-from tess.cli.predict import MODELS, MODEL_CHOICES
+from tess.server.models import SegmentationDocument, SummarizationDocument, PipelineDocument
 
 
-def run_predictions():
-    queue = TinyDBQueue()
-    for doc in queue.get_new():
-        model = MODELS.get(doc["algorithm"], None)
-        if model is None:
-            continue
-        doc["status"] = "PROCESSING"
-        queue.update(doc.doc_id, doc)
-        model = model()
-        summary = model.predict(doc["text"])
-        doc["summary"] = summary
-        doc["status"] = "COMPLETE"
-        queue.update(doc.doc_id, doc)
+def run_segmentation():
+    documents = SegmentationDocument.objects.filter(status="NEW")
+
+    for document in documents:
+        document.status = 'PROCESSING'
+        document.save()
+
+    for document in documents:
+        segmentation_dispatch(document)
+
+
+def run_summarization():
+    documents = SummarizationDocument.objects.filter(status="NEW")
+
+    for document in documents:
+        document.status = 'PROCESSING'
+        document.save()
+
+    for document in documents:
+        summarization_dispatch(document)
+
+
+def run_pipeline():
+    documents = PipelineDocument.objects.filter(status="NEW")
+
+    for document in documents:
+        document.status = 'PROCESSING'
+        document.save()
+
+    for document in documents:
+        pipeline_dispatch(document)
 
 
 def run_server():
@@ -32,23 +52,14 @@ def run_server():
         # Parsing the JSON configs.
         config = Config(json.load(f))
 
-    # Initialize the task queue
-    queue = TinyDBQueue(config.task_queue, config.tables['task_queue'])
-    print("Initialized queue: {} new elements".format(len(queue.get_new())))
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(func=run_segmentation, trigger="interval", seconds=60)
+    scheduler.add_job(func=run_summarization, trigger="interval", seconds=60)
+    scheduler.add_job(func=run_pipeline, trigger="interval", seconds=60)
+    scheduler.start()
 
-    # Run the predictions function in the background
-    bg_func = BackgroundFunction(run_predictions, interval=60)
-    bg_func.run()
-
-    # Creating a new app
-    app = Vibora()
-
-    # Registering the config as a component so you can use it
-    # later on (as we do in the "before_server_start" hook)
-    app.components.add(config)
-
-    # Registering our API
-    app.add_blueprint(summarization_api, prefixes={'v1/summarization': '/v1/summarization'})
+    # Shut down the scheduler when exiting the app
+    atexit.register(lambda: scheduler.shutdown())
 
     # Running the server.
-    app.run(host=config.host, port=config.port)
+    app.run(host=config.host, port=config.port, debug=False)

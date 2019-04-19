@@ -1,0 +1,1 @@
+from .pdfact import PdfActSegmentationModel

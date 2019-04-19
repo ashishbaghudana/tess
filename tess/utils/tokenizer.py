@@ -4,6 +4,11 @@ import nltk
 import stanfordnlp
 
 
+def text_preprocess(text):
+    text = ' '.join(text.lower().split())
+    return text
+
+
 def sent_tokenize(text, model='newline'):
     partial = MODELS.get(model, nltk.sent_tokenize)
     return partial(text)
@@ -21,6 +26,10 @@ def stanfordnlp_tokenize(text):
     except FileNotFoundError:
         print('StanfordNLP not installed. Run python -m tess download stanfordnlp to download models.', file=sys.stderr)
         return nltk.sent_tokenize(text)
+
+
+def word_tokenize(text):
+    return nltk.word_tokenize(text)
 
 
 MODELS = {

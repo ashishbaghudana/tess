@@ -8,7 +8,7 @@ DEFAULT_SEGMENT_LENGTH = 3
 
 
 class TextSplitSegmentationModel(SegmentationModel):
-    def __init__(self, segment_strategy='greedy', segment_length=3):
+    def __init__(self, segment_strategy='greedy', segment_length=30):
         self.segment_strategy = segment_strategy
         self.segment_length = segment_length
         self.segment_func = text_split
@@ -17,7 +17,7 @@ class TextSplitSegmentationModel(SegmentationModel):
         return self.segment_func(text, self.segment_strategy, self.segment_length)
 
 
-def text_split(text, algorithm='greedy', segment_length=3):
+def text_split(text, algorithm='greedy', segment_length=30):
     if algorithm == 'greedy':
         return text_split_greedy(text, segment_length)
     elif algorithm == 'optimal':

@@ -1,12 +1,12 @@
 import sys
 
-from tess.cli import download, predict, run_server, run_pipeline, segment
+from tess.cli import download, summarize, run_server, run_pipeline, segment
 from tess.utils.print_utility import prints
 
 if __name__ == '__main__':
     commands = {
         'download': download,
-        'predict': predict,
+        'summarize': summarize,
         'server': run_server,
         'pipeline': run_pipeline,
         'segment': segment

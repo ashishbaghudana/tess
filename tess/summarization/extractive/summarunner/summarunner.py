@@ -13,6 +13,7 @@ from tess.summarization.extractive import ExtractiveSummarizationModel
 from tess.summarization.extractive.summarunner.utils import Vocab, make_dataset
 from tess.utils.pkg_utility import check_model, get_file
 from tess.utils.timing_utility import timeit
+from tess.utils.tokenizer import word_tokenize, sent_tokenize
 
 
 class SummaRuNNerModel(ExtractiveSummarizationModel):
@@ -84,3 +85,7 @@ class SummaRuNNerModel(ExtractiveSummarizationModel):
                 start = stop
                 file_id = file_id + 1
         return summaries
+
+    def text_preprocess(self, text):
+        text = '\n'.join(sent_tokenize(' '.join(word_tokenize(text)), 'nltk'))
+        return text.encode('ascii', errors='ignore').decode('ascii', errors='ignore')

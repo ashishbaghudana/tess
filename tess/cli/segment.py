@@ -2,10 +2,11 @@ from pathlib import Path
 
 import click
 
-from tess.segmentation.models import TextSplitSegmentationModel
+from tess.segmentation.models import TextSplitSegmentationModel, PdfActSegmentationModel
 
 SEGMENTATION_MODELS = {
-    "textsplit": TextSplitSegmentationModel
+    "textsplit": TextSplitSegmentationModel,
+    "pdfact": PdfActSegmentationModel
 }
 SEGMENTATION_MODEL_CHOICES = click.Choice(list(SEGMENTATION_MODELS.keys()))
 
