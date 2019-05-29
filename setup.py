@@ -54,7 +54,6 @@ setup(
     author_email='ashish@ashishb.me',
     license='MIT',
     packages=['tess'],
-    install_requires=required,
     python_requires='>=3.6',
     cmdclass={
         'develop': PostDevelopCommand,
